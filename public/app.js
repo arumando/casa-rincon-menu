@@ -435,9 +435,10 @@
     if (segData.estado === "cancelado") return "Cancelado";
     if (segData.estado === "entregado") return "Entregado";
     if (segData.estado === "listo") return "¡Listo para recoger!";
-    if (segData.estado === "en_camino") return segData.listoEn ? `En camino · ${minutosRestantes()} min` : "En camino";
+    const faltan = () => (minutosRestantes() > 0 ? `${minutosRestantes()} min` : "ya casi");
+    if (segData.estado === "en_camino") return segData.listoEn ? `En camino · ${faltan()}` : "En camino";
     if (!segData.listoEn) return "Esperando confirmación";
-    return `${segData.estado === "recibido" ? "Recibido" : "En el horno"} · ${minutosRestantes()} min`;
+    return `${segData.estado === "recibido" ? "Recibido" : "En el horno"} · ${faltan()}`;
   }
 
   function tiempoHtml() {

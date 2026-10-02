@@ -1,4 +1,4 @@
-# Casa Rincón · menú digital (demo de Milpa Digital)
+# Casa Rincón · menú digital (demo de Impulsa Lab)
 
 Menú digital con pedidos para llevar y a domicilio, seguimiento en vivo y panel para el restaurante.
 

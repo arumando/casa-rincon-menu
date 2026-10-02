@@ -2,7 +2,7 @@
   "name": "casa-rincon-menu",
   "private": true,
   "version": "1.0.0",
-  "description": "Demo de menú digital con pedidos y seguimiento en tiempo real (Milpa Digital)",
+  "description": "Demo de menú digital con pedidos y seguimiento en tiempo real (Impulsa Lab)",
   "type": "module",
   "dependencies": {
     "@netlify/blobs": "^11.1.3"

@@ -5,7 +5,7 @@ const CONFIG = {
   nombre: "Casa Rincón",
   lema: "Del horno a la mesa",
   ciudad: "Oaxaca",
-  // WhatsApp que recibe los pedidos: 52 + 10 dígitos. Para la demo, el número de Milpa Digital.
+  // WhatsApp que recibe los pedidos: 52 + 10 dígitos. Para la demo, el número de Impulsa Lab.
   whatsapp: "529241796248",
   // El tiempo de entrega no es fijo: lo pone el encargado desde el panel (panel.html).
 };
