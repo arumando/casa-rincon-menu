@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Casa Rincón · Menú</title>
-  <meta name="description" content="Menú digital de Casa Rincón, del horno a la mesa. Arma tu pizza y haz tu pedido.">
+  <title>Casa Rincón · Apps</title>
+  <meta name="description" content="Las 4 apps de Casa Rincón: menú de mesa, pedidos, caja y cocina.">
   <meta name="theme-color" content="#0e1a11">
   <!-- Demo de propuesta: que no aparezca en buscadores -->
   <meta name="robots" content="noindex, nofollow">
@@ -13,48 +13,44 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div class="demo-ribbon">Demo de menú digital · propuesta de Impulsa Lab</div>
+<body class="launcher">
+  <div class="demo-ribbon">Demo de sistema digital · propuesta de Impulsa Lab</div>
 
-  <header class="hero" id="hero">
+  <header class="hero">
     <img src="img/mesa.jpg" alt="Mesa con pizzas, calzones y panes de Casa Rincón">
     <div class="hero-text">
       <h1>Casa Rincón</h1>
       <p class="tagline">Del horno a la mesa · Oaxaca</p>
-      <p class="hero-note">Todo se hornea al momento</p>
+      <p class="hero-note">Elige qué app quieres abrir</p>
     </div>
   </header>
 
-  <div class="sticky" id="sticky">
-    <div class="topbar" id="topbar" hidden></div>
-    <div class="search">
-      <input id="q" type="search" placeholder="Buscar: chapulines, pepperoni, pasta…" aria-label="Buscar en el menú" enterkeyhint="search">
-    </div>
-    <nav class="cats" id="cats" aria-label="Categorías del menú" hidden></nav>
-  </div>
+  <main class="apps">
+    <h2 class="home-title">Para los clientes</h2>
+    <a class="app-card" href="pedidos.html">
+      <span class="app-ico" aria-hidden="true">🛵</span>
+      <span><b>Pedidos</b><small>Para llevar y a domicilio. Muestra el tiempo de espera y el cliente sigue su pedido en vivo.</small></span>
+      <span class="app-go" aria-hidden="true">›</span>
+    </a>
+    <a class="app-card" href="menu.html">
+      <span class="app-ico" aria-hidden="true">📖</span>
+      <span><b>Menú de mesa</b><small>Para el QR de cada mesa: solo para ver. La orden la toman los meseros.</small></span>
+      <span class="app-go" aria-hidden="true">›</span>
+    </a>
 
-  <main id="list"></main>
+    <h2 class="home-title">Para el restaurante <small>(con PIN)</small></h2>
+    <a class="app-card staff" href="caja.html">
+      <span class="app-ico" aria-hidden="true">🧾</span>
+      <span><b>Caja</b><small>Tickets de todo el menú, pedidos que llegan, tiempo de espera del día y productos agotados.</small></span>
+      <span class="app-go" aria-hidden="true">›</span>
+    </a>
+    <a class="app-card staff" href="cocina.html">
+      <span class="app-ico" aria-hidden="true">👨‍🍳</span>
+      <span><b>Cocina</b><small>Pantalla con los pedidos por preparar: “Empezar” y “¡Listo!”.</small></span>
+      <span class="app-go" aria-hidden="true">›</span>
+    </a>
+  </main>
 
-  <section class="info" id="info" aria-label="Información">
-    <h2>Bueno saber</h2>
-    <ul>
-      <li>Las pizzas se pueden pedir mitad y mitad sin costo extra. La Gigante puede llevar hasta 4 sabores.</li>
-      <li>Orilla rellena de queso Philadelphia disponible en todos los tamaños.</li>
-      <li>Todo se hornea al momento: al recibir tu pedido te confirmamos el tiempo y lo ves aquí en vivo.</li>
-      <li>Los precios no incluyen IVA. Si necesitas factura, pídela al momento de pagar.</li>
-    </ul>
-  </section>
-
-  <footer class="foot"><span>Menú digital hecho por</span><img src="img/impulsa-lab.svg" alt="Impulsa Lab" width="132" height="30"></footer>
-
-  <button id="track" class="trackbar" hidden></button>
-  <button id="cartbar" class="cartbar" hidden></button>
-
-  <div id="overlay" class="overlay" hidden>
-    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Detalle"></div>
-  </div>
-
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+  <footer class="foot"><span>Sistema digital hecho por</span><img src="img/impulsa-lab.svg" alt="Impulsa Lab" width="132" height="30"></footer>
 </body>
 </html>

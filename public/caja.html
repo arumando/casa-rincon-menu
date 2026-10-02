@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Casa Rincón · Caja</title>
+  <meta name="theme-color" content="#0e1a11">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="staff.css">
+</head>
+<body data-modo="caja" class="staff tab-ticket">
+  <div class="demo-ribbon">Demo · caja del restaurante · Impulsa Lab</div>
+
+  <header class="s-head">
+    <div>
+      <h1>Casa Rincón</h1>
+      <p>Caja</p>
+    </div>
+    <div class="s-status" id="estado"></div>
+  </header>
+
+  <section id="login" class="s-login" hidden>
+    <h2>Entrar a la caja</h2>
+    <p class="hint">Escribe el PIN del restaurante.</p>
+    <form id="loginForm">
+      <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="PIN">
+      <button class="primary" type="submit"><span>Entrar</span></button>
+    </form>
+    <p class="errors" id="loginError" hidden></p>
+  </section>
+
+  <div id="app" hidden>
+    <nav class="s-tabs" id="tabs">
+      <button class="on" data-tab="ticket">🧾 Nuevo ticket</button>
+      <button data-tab="pedidos">📋 Pedidos <span class="n" id="nPedidos"></span></button>
+      <button data-tab="ajustes">⚙️ Tiempo y agotados</button>
+    </nav>
+
+    <section id="tab-ticket">
+      <div class="sticky" id="sticky">
+        <div class="topbar" id="topbar" hidden></div>
+        <div class="search">
+          <input id="q" type="search" placeholder="Buscar platillo…" aria-label="Buscar en el menú" enterkeyhint="search">
+        </div>
+        <nav class="cats" id="cats" aria-label="Categorías del menú" hidden></nav>
+      </div>
+      <main id="list"></main>
+    </section>
+
+    <section id="tab-pedidos" class="s-wrap" hidden>
+      <nav class="s-filtros" id="filtros"></nav>
+      <div id="lista" class="s-lista"></div>
+    </section>
+
+    <section id="tab-ajustes" class="s-wrap" hidden>
+      <div id="ajustes"></div>
+    </section>
+  </div>
+
+  <button id="cartbar" class="cartbar" hidden></button>
+
+  <div id="overlay" class="overlay" hidden>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Detalle"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="core.js"></script>
+  <script src="menu.js"></script>
+  <script src="caja.js"></script>
+</body>
+</html>

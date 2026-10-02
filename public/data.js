@@ -7,8 +7,45 @@ const CONFIG = {
   ciudad: "Oaxaca",
   // WhatsApp que recibe los pedidos: 52 + 10 dígitos. Para la demo, el número de Impulsa Lab.
   whatsapp: "529241796248",
-  // El tiempo de entrega no es fijo: lo pone el encargado desde el panel (panel.html).
+  // API de pedidos en vivo (Netlify). Las páginas pueden estar en GitHub Pages.
+  api: "https://milpadigital-casa-rincon.netlify.app",
+  // El tiempo de entrega lo fija el encargado en la caja y aplica a todos los pedidos hasta que lo cambie.
 };
+
+// Zonas de entrega a domicilio y su costo de envío.
+const ZONAS = [
+  { id: "pueblo", nombre: "En el pueblo", costo: 5 },
+  { id: "mirador", nombre: "El Mirador", costo: 80 },
+  { id: "guelatao", nombre: "Guelatao", costo: 80 },
+  { id: "capulalpam", nombre: "Capulálpam", costo: 100 },
+];
+
+// Ingredientes que se pueden marcar como agotados desde la caja.
+// Cada uno apaga los platillos y sabores cuyo texto contiene alguna de las palabras de "buscar".
+const INGREDIENTES = [
+  { id: "chorizo", nombre: "Chorizo", buscar: ["chorizo", "choriqueso"] },
+  { id: "pepperoni", nombre: "Pepperoni", buscar: ["pepperoni", "peppe"] },
+  { id: "jamon", nombre: "Jamón de pavo", buscar: ["jamon de pavo", "y jamon."] },
+  { id: "salchicha", nombre: "Salchicha de pavo", buscar: ["salchicha"] },
+  { id: "tocino", nombre: "Tocino", buscar: ["tocino"] },
+  { id: "serrano", nombre: "Jamón serrano", buscar: ["serrano"] },
+  { id: "pollo", nombre: "Pollo / pechuga", buscar: ["pollo", "pechuga"] },
+  { id: "arrachera", nombre: "Arrachera", buscar: ["arrachera"] },
+  { id: "tasajo", nombre: "Tasajo", buscar: ["tasajo"] },
+  { id: "chapulines", nombre: "Chapulines", buscar: ["chapulin"] },
+  { id: "pina", nombre: "Piña", buscar: ["pina"] },
+  { id: "champinones", nombre: "Champiñones", buscar: ["champin", "champis"] },
+  { id: "jalapeno", nombre: "Chile jalapeño", buscar: ["jalapeno"] },
+  { id: "aceitunas", nombre: "Aceitunas", buscar: ["aceituna"] },
+  { id: "elotitos", nombre: "Elotitos", buscar: ["elotito"] },
+  { id: "aguacate", nombre: "Aguacate", buscar: ["aguacate"] },
+  { id: "queso-cabra", nombre: "Queso de cabra", buscar: ["queso de cabra"] },
+  { id: "philadelphia", nombre: "Queso Philadelphia (orilla)", buscar: ["philadelphia"] },
+  { id: "brioche", nombre: "Pan brioche", buscar: ["brioche"] },
+  { id: "pan-oregano", nombre: "Pan / masa de orégano", buscar: ["oregano"] },
+  { id: "pasta", nombre: "Pasta", buscar: ["pasta de 130"] },
+  { id: "papas", nombre: "Papas", buscar: ["papas a la francesa"] },
+];
 
 const TAMANOS = [
   { id: "personal", nombre: "Personal", reb: 4 },

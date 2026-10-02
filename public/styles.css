@@ -338,3 +338,59 @@ main { max-width: 760px; margin: 0 auto; padding: 0 16px; }
 .ubic small { color: var(--muted); }
 .ubic a { color: var(--gold); text-decoration: underline; }
 .ubic .link { padding: 0; }
+
+/* ---------- Agotados ---------- */
+.card.agotado, .tile.agotado { opacity: .45; filter: grayscale(.8); }
+.card.agotado { cursor: not-allowed; }
+.tag.out { color: var(--danger); }
+.chip.out { text-decoration: line-through; }
+.check.off { opacity: .5; }
+.line.out .line-main b { text-decoration: line-through; }
+.line.out small:last-child { color: var(--danger); }
+
+/* ---------- Tiempo de espera de hoy (pedidos) ---------- */
+.tiempo-hoy {
+  max-width: 728px; margin: 4px auto 0; padding: 10px 14px; border-radius: 12px;
+  background: var(--surface-2); border: 1px solid var(--veg); font-size: 14px;
+  display: flex; gap: 10px; align-items: center;
+}
+.tiempo-hoy.cerrado { border-color: var(--hot); }
+.tiempo-hoy .clock { font-size: 20px; }
+@media (max-width: 760px) { .tiempo-hoy { margin: 4px 16px 0; } }
+.espera { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.espera div { background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 14px; text-align: center; }
+.espera span { display: block; color: var(--muted); font-size: 13px; }
+.espera b { display: block; font-family: Oswald, sans-serif; font-size: 30px; color: var(--gold); }
+.hint.c { text-align: center; font-size: 14px; }
+.chips.mesas { margin-top: 10px; }
+.chips.mesas .chip { min-width: 46px; justify-content: center; }
+
+.secondary {
+  flex: 1; border: 1px solid var(--line); background: none; border-radius: 12px;
+  padding: 14px 16px; font-weight: 700; min-height: 48px;
+}
+
+/* ---------- Avisos ---------- */
+.aviso {
+  position: fixed; left: 50%; top: 14px; transform: translateX(-50%); z-index: 30;
+  background: var(--surface-2); border: 1px solid var(--gold); color: var(--text);
+  padding: 12px 18px; border-radius: 12px; font-weight: 600; box-shadow: 0 8px 28px rgba(0,0,0,.5);
+  max-width: calc(100% - 32px); animation: up .2s ease-out;
+}
+.aviso.ok { border-color: var(--veg); }
+.aviso.error { border-color: var(--danger); }
+
+/* ---------- Portada (index) ---------- */
+.apps { max-width: 760px; margin: 0 auto; padding: 0 16px; display: grid; gap: 12px; }
+.home-title small { text-transform: none; letter-spacing: 0; font-family: Inter, sans-serif; }
+.app-card {
+  display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: var(--radius);
+  background: var(--surface); border: 1px solid var(--line); transition: border-color .12s, transform .12s;
+}
+.app-card:hover, .app-card:focus-visible { border-color: var(--gold); outline: none; }
+.app-card:active { transform: scale(.99); }
+.app-card.staff { background: var(--surface-2); }
+.app-ico { font-size: 34px; flex: none; width: 52px; text-align: center; }
+.app-card b { display: block; font-family: Oswald, sans-serif; text-transform: uppercase; letter-spacing: .03em; font-size: 20px; color: var(--gold); }
+.app-card small { display: block; color: var(--muted); font-size: 13px; }
+.app-go { margin-left: auto; font-size: 28px; color: var(--gold); }

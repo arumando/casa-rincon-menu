@@ -1,19 +1,26 @@
-# Casa Rincón · menú digital (demo de Impulsa Lab)
+# Casa Rincón · sistema digital (demo de Impulsa Lab)
 
-Menú digital con pedidos para llevar y a domicilio, seguimiento en vivo y panel para el restaurante.
+Cuatro apps que trabajan juntas y se actualizan en vivo:
 
-- `public/` — la página: `index.html` (menú del cliente) y `panel.html` (panel del encargado).
-- `public/data.js` — menú, precios y WhatsApp que recibe los pedidos. Para cambiar precios solo se edita este archivo.
-- `netlify/functions/pedidos.mjs` — API de pedidos (`/api/pedidos`), guarda en Netlify Blobs.
+| App | Archivo | Para quién |
+|---|---|---|
+| Portada | `public/index.html` | Lleva a las 4 apps |
+| Pedidos | `public/pedidos.html` | Clientes: para llevar y a domicilio. Al entrar ven el tiempo de espera y deciden si siguen; después siguen su pedido en vivo |
+| Menú de mesa | `public/menu.html` | QR en las mesas: solo para ver; la orden la toman los meseros |
+| Caja | `public/caja.html` | Encargado (con PIN): tickets de todo el menú, pedidos que llegan, tiempo de espera del día y agotados |
+| Cocina | `public/cocina.html` | Cocina (con PIN): pedidos por preparar, “Empezar” y “¡Listo!” |
 
 ## Cómo funciona
-1. El cliente arma su pedido y lo confirma: se guarda y recibe un número de pedido.
-2. El encargado lo ve en `/panel.html` (con PIN) y elige en cuánto estará: 15, 20, 30… min.
-3. El cliente ve el tiempo y el estado en su pantalla, actualizado cada 5 segundos.
-4. El cliente también puede mandar el pedido por WhatsApp.
+- **Tiempo de espera**: el encargado lo fija en Caja → “Tiempo y agotados” (para llevar y a domicilio) y aplica a todos los pedidos hasta que lo cambie. Si uno se atrasa, se le suman minutos desde Pedidos.
+- **Agotados**: en Caja se marca un ingrediente (chorizo, pan brioche…) o un producto; desaparece al momento en todas las apps.
+- **Envío a domicilio**: zonas y costos en `ZONAS` dentro de `public/data.js`.
+- **Pausar pedidos en línea**: en Caja → “Tiempo y agotados”.
 
-En las mesas, el QR abre `/?mesa`: el menú solo para ver; la orden la toman los meseros.
+## Dónde vive
+- **Páginas**: GitHub Pages. Cada `git push` a `main` publica la carpeta `public/` (ver `.github/workflows/pages.yml`).
+- **Datos en vivo** (pedidos, tiempo, agotados): API en Netlify (`netlify/functions/`), guardada en Netlify Blobs.
+  Publicar cambios de la API: `npx netlify-cli deploy --prod`.
+- **PIN** de caja y cocina: variable `PANEL_PIN` en Netlify (no está en el código).
 
-## Configuración
-- PIN del panel: variable de entorno `PANEL_PIN` en Netlify.
-- Probar en la compu: `npx netlify-cli dev` y abrir http://localhost:8888
+## Cambiar el menú
+Todo está en `public/data.js`: platillos, precios, zonas de envío, ingredientes y WhatsApp.
