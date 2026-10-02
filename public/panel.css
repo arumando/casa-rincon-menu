@@ -1,0 +1,64 @@
+body.panel { padding-bottom: 40px; }
+.p-head {
+  max-width: 900px; margin: 0 auto; padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.p-head h1 { margin: 0; font-family: "UnifrakturMaguntia", Georgia, serif; font-weight: 400; color: var(--gold); font-size: 32px; line-height: 1; }
+.p-head p { margin: 2px 0 0; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+.p-status { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+
+.p-login { max-width: 360px; margin: 48px auto; padding: 0 16px; text-align: center; }
+.p-login h2 { font-family: Oswald, sans-serif; text-transform: uppercase; color: var(--gold); }
+.p-login form { display: flex; gap: 10px; margin-top: 16px; }
+.p-login input {
+  flex: 1; border: 1px solid var(--line); background: var(--surface-2); border-radius: 12px;
+  padding: 12px; font-size: 18px; letter-spacing: .3em; text-align: center; outline: none;
+}
+.p-login input:focus { border-color: var(--gold); }
+.p-login .primary { flex: none; justify-content: center; }
+
+.p-main { max-width: 900px; margin: 0 auto; padding: 0 16px; }
+.p-tabs { display: flex; gap: 8px; padding: 14px 0; }
+.p-tabs button {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  padding: 8px 14px; font-weight: 600; font-size: 14px;
+}
+.p-tabs button.on { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); }
+.p-tabs .n { margin-left: 6px; opacity: .8; }
+
+#lista { display: grid; gap: 14px; }
+@media (min-width: 820px) { #lista { grid-template-columns: 1fr 1fr; align-items: start; } }
+
+.ped { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+.ped.nuevo { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(242,210,100,.25); animation: llega 1s ease-out 2; }
+@keyframes llega { 50% { box-shadow: 0 0 0 8px rgba(242,210,100,.15); } }
+.ped.final { opacity: .6; }
+.ped-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ped-head .cod { font-family: Oswald, sans-serif; font-size: 22px; color: var(--gold); }
+.badge { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); }
+.badge.dom { border-color: var(--hot); color: var(--hot); }
+.badge.est { margin-left: auto; }
+.ped-head .hace { color: var(--muted); font-size: 12px; width: 100%; }
+.cli { margin: 8px 0 0; font-weight: 600; }
+.cli a, .entrega a { color: var(--gold); text-decoration: underline; font-weight: 600; }
+.entrega { margin: 4px 0 0; font-size: 14px; }
+.ped ul { margin: 10px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.ped li { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.ped li small { display: block; color: var(--muted); }
+.ped .tot { display: flex; justify-content: space-between; margin-top: 8px; font-weight: 700; }
+.ped .pago, .ped .notas { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+
+.tiempo { margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--surface-2); border: 1px dashed var(--gold); }
+.tiempo.ok { border-style: solid; border-color: var(--veg); }
+.tiempo p { margin: 0 0 8px; font-weight: 700; }
+.tiempo p small { font-weight: 500; color: var(--muted); }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.btns button {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 10px;
+  padding: 10px 14px; font-weight: 700; font-size: 15px; min-width: 56px;
+}
+.btns button.go { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); }
+.btns button.bad { color: var(--danger); border-color: rgba(255,138,128,.5); }
+.estados { margin-top: 10px; }
+.vacio { color: var(--muted); text-align: center; padding: 40px 0; }
+.salir { border: 0; background: none; color: var(--muted); text-decoration: underline; font-size: 13px; }
