@@ -138,7 +138,7 @@ const Core = (() => {
   }
 
   // ---------- Pedidos ----------
-  const TIPO_TXT = { mesa: "Mesa", llevar: "Para llevar", domicilio: "A domicilio" };
+  const TIPO_TXT = { mesa: "Mesa", llevar: "Pasan", domicilio: "A domicilio" };
   const PAGO_TXT = { efectivo: "Efectivo", tarjeta: "Tarjeta", transferencia: "Transferencia" };
   const ESTADO_TXT = { recibido: "Nuevo", preparando: "En el horno", listo: "Listo", en_camino: "En camino", entregado: "Entregado", cancelado: "Cancelado" };
   const FINALES = ["entregado", "cancelado"];

@@ -94,7 +94,7 @@
     $("#nPedidos").textContent = activos ? activos : "";
     const e = C.estado;
     $("#estado").innerHTML = `${enLinea ? '<span class="dot" aria-hidden="true"></span> En vivo' : "⚠️ Sin conexión"}
-      <span class="s-chip ${e.abierto === false ? "off" : ""}">${e.abierto === false ? "Pedidos en línea pausados" : `Llevar ${e.tiempo.llevar} · Domicilio ${e.tiempo.domicilio} min`}</span>
+      <span class="s-chip ${e.abierto === false ? "off" : ""}">${e.abierto === false ? "Pedidos en línea pausados" : `Pasan ${e.tiempo.llevar} · Domicilio ${e.tiempo.domicilio} min`}</span>
       <button class="salir" data-salir>Salir</button>`;
   }
 
@@ -173,7 +173,7 @@
       <section class="s-card">
         <h3>Tiempo de espera <small>aplica a todos los pedidos hasta que lo cambies</small></h3>
         ${["llevar", "domicilio"].map((t) => `
-          <p class="s-label">${t === "llevar" ? "Para llevar" : "A domicilio"}: <b>${e.tiempo[t]} min</b></p>
+          <p class="s-label">${t === "llevar" ? "Pasan" : "A domicilio"}: <b>${e.tiempo[t]} min</b></p>
           <div class="chips big">${TIEMPOS[t].map((m) => `<button class="chip ${e.tiempo[t] === m ? "on" : ""}" data-tiempo="${t}" data-min="${m}">${m} min</button>`).join("")}</div>`).join("")}
         <p class="hint">El cliente lo ve antes de pedir (“¿Seguimos?”) y en su seguimiento. Si un pedido se atrasa, súmale minutos desde Pedidos.</p>
       </section>
@@ -249,7 +249,7 @@
     // Ajustes
     const e2 = C.estado;
     if ("abierto" in d) return guardarEstado({ abierto: d.abierto === "1" }, d.abierto === "1" ? "Recibiendo pedidos ✓" : "Pedidos en línea pausados");
-    if ("tiempo" in d) return guardarEstado({ tiempo: { [d.tiempo]: Number(d.min) } }, `Tiempo ${d.tiempo === "llevar" ? "para llevar" : "a domicilio"}: ${d.min} min ✓`);
+    if ("tiempo" in d) return guardarEstado({ tiempo: { [d.tiempo]: Number(d.min) } }, `Tiempo ${d.tiempo === "llevar" ? "para los que pasan" : "a domicilio"}: ${d.min} min ✓`);
     if ("ing" in d) return guardarEstado({ agotados: { ingredientes: toggleLista(e2.agotados?.ingredientes, d.ing) } });
     if ("prod" in d) return guardarEstado({ agotados: { productos: toggleLista(e2.agotados?.productos, d.prod) } });
     if ("resetAgotados" in d) {

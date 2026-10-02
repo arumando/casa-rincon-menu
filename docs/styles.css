@@ -394,3 +394,16 @@ main { max-width: 760px; margin: 0 auto; padding: 0 16px; }
 .app-card b { display: block; font-family: Oswald, sans-serif; text-transform: uppercase; letter-spacing: .03em; font-size: 20px; color: var(--gold); }
 .app-card small { display: block; color: var(--muted); font-size: 13px; }
 .app-go { margin-left: auto; font-size: 28px; color: var(--gold); }
+
+/* ---------- Botón de WhatsApp ---------- */
+.wa-fab {
+  position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 7;
+  display: flex; align-items: center; gap: 8px; padding: 10px 16px 10px 12px; border-radius: 999px;
+  background: #25d366; color: #fff; font-weight: 700; box-shadow: 0 6px 20px rgba(0,0,0,.4);
+  transition: bottom .2s;
+}
+.wa-fab:active { transform: scale(.97); }
+body.with-cart .wa-fab, body.with-track .wa-fab { bottom: calc(84px + env(safe-area-inset-bottom)); }
+body.with-cart.with-track .wa-fab { bottom: calc(148px + env(safe-area-inset-bottom)); }
+body.with-cart.with-track .cartbar { bottom: calc(78px + env(safe-area-inset-bottom)); }
+@media (max-width: 380px) { .wa-fab span { display: none; } .wa-fab { padding: 12px; } }
