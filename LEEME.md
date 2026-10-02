@@ -17,7 +17,7 @@ Cuatro apps que trabajan juntas y se actualizan en vivo:
 - **Pausar pedidos en línea**: en Caja → “Tiempo y agotados”.
 
 ## Dónde vive
-- **Páginas**: GitHub Pages. Cada `git push` a `main` publica la carpeta `docs/` (ver `.github/workflows/pages.yml`).
+- **Páginas**: GitHub Pages (rama `main`, carpeta `/docs`). Cada `git push` a `main` se publica solo en 1–2 minutos.
 - **Datos en vivo** (pedidos, tiempo, agotados): API en Netlify (`netlify/functions/`), guardada en Netlify Blobs.
   Publicar cambios de la API: `npx netlify-cli deploy --prod`.
 - **PIN** de caja y cocina: variable `PANEL_PIN` en Netlify (no está en el código).
