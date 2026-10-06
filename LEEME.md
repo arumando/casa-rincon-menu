@@ -26,3 +26,8 @@ Cuatro apps que trabajan juntas y se actualizan en vivo:
 
 ## Cambiar el menú
 Todo está en `docs/data.js`: platillos, precios, zonas de envío, ingredientes y WhatsApp.
+
+## Hora pico (muchos pedidos al mismo tiempo)
+- Los números de pedido nunca se repiten aunque lleguen muchos juntos, y si caja y cocina tocan el mismo pedido a la vez no se pierde ningún cambio.
+- Dos tickets para la misma mesa enviados al mismo tiempo quedan en una sola cuenta.
+- Prueba: `PANEL_PIN=xxxx node pruebas/carga.mjs 30` manda 30 pedidos simultáneos, revisa todo y los cancela al final.

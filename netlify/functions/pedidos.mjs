@@ -3,7 +3,7 @@
 // - Caja y cocina (con PIN): hacen tickets, ven todos los pedidos y los actualizan.
 // - Mesas: cada ticket de mesa pertenece a una "cuenta" abierta; se le agregan rondas,
 //   se pueden quitar productos y al final se cobra y se cierra toda la cuenta.
-import { json, preflight, pinCorrecto, tienda, texto, numero, leerConfig, hoy } from "../lib/comun.mjs";
+import { json, preflight, pinCorrecto, tienda, modificar, apartarNumero, texto, numero, leerConfig, hoy } from "../lib/comun.mjs";
 
 const ESTADOS = ["recibido", "preparando", "listo", "en_camino", "entregado", "cancelado"];
 const VIDA_MS = 36 * 3600 * 1000; // los pedidos se borran después de 36 horas
@@ -13,13 +13,9 @@ function token(n) {
   return Array.from(crypto.getRandomValues(new Uint8Array(n)), (b) => abc[b % abc.length]).join("");
 }
 
-// Número de pedido del día: 1, 2, 3…
+// Número de pedido del día: 1, 2, 3… Aunque lleguen muchos al mismo tiempo, nunca se repite.
 async function siguienteCodigo() {
-  const store = tienda("contadores");
-  const clave = `dia/${hoy()}`;
-  const n = ((await store.get(clave, { type: "json" })) || 0) + 1;
-  await store.setJSON(clave, n);
-  return String(n);
+  return String(await apartarNumero(tienda("contadores"), `dia/${hoy()}`));
 }
 
 // Lo que puede ver el cliente con su enlace de seguimiento (sin datos personales).
@@ -53,9 +49,26 @@ function recalcular(p) {
   p.total = p.subtotal + (p.envio || 0);
 }
 
+// Memoria entre llamadas: caja y cocina piden la lista cada pocos segundos; solo se vuelven
+// a descargar los pedidos que cambiaron (cada uno trae su etag), así la hora pico no la hace lenta.
+const memoria = new Map(); // clave -> { etag, pedido }
+
 async function todos(store) {
   const { blobs } = await store.list({ prefix: "p/" });
-  return (await Promise.all(blobs.map((b) => store.get(b.key, { type: "json" })))).filter(Boolean);
+  const vivos = new Set(blobs.map((b) => b.key));
+  for (const k of memoria.keys()) if (!vivos.has(k)) memoria.delete(k);
+  return (
+    await Promise.all(
+      blobs.map(async (b) => {
+        const m = memoria.get(b.key);
+        if (m && m.etag === b.etag) return structuredClone(m.pedido);
+        const leido = await store.getWithMetadata(b.key, { type: "json" });
+        if (!leido) return null;
+        memoria.set(b.key, { etag: leido.etag, pedido: leido.data });
+        return structuredClone(leido.data);
+      }),
+    )
+  ).filter(Boolean);
 }
 
 const cuentaAbierta = (p) => !p.cerrada && p.estado !== "cancelado";
@@ -73,8 +86,13 @@ async function nuevoPedido(b, deCaja, cfg, store) {
   if (tipo === "mesa") {
     const abiertos = (await todos(store)).filter((p) => p.tipo === "mesa" && cuentaAbierta(p));
     const deCuenta = b.cuenta && abiertos.find((p) => p.cuenta === b.cuenta);
-    const deMesa = abiertos.find((p) => p.mesa === mesa);
-    cuenta = (deCuenta || deMesa)?.cuenta || id;
+    if (deCuenta) cuenta = deCuenta.cuenta;
+    else {
+      // Dos meseros mandan la misma mesa al mismo tiempo: los dos tickets caen en la misma cuenta.
+      const reciente = (m) => m && (abiertos.some((p) => p.cuenta === m.cuenta) || ahora - m.desde < 5 * 60000);
+      const m = await modificar(store, `mesas/${mesa}`, (actual) => (reciente(actual) ? actual : { cuenta: id, desde: ahora }));
+      cuenta = m.cuenta;
+    }
   }
 
   const p = {
@@ -167,43 +185,57 @@ export default async (req) => {
     const deCuenta = (await todos(store)).filter((p) => (p.cuenta || p.id) === cuenta);
     if (!deCuenta.length) return json({ error: "No encontrada" }, 404);
     if (body.cerrar) {
-      for (const p of deCuenta) {
-        p.cerrada = true;
-        if (p.estado !== "cancelado") {
-          p.pagado = true;
-          p.estado = "entregado";
-          if (body.pago) p.pago = texto(body.pago, 20);
-        }
-        p.actualizado = ahora;
-        await store.setJSON(`p/${p.id}`, p);
+      const cerrados = await Promise.all(
+        deCuenta.map((d) =>
+          modificar(store, `p/${d.id}`, (p) => {
+            if (!p) return undefined;
+            p.cerrada = true;
+            if (p.estado !== "cancelado") {
+              p.pagado = true;
+              p.estado = "entregado";
+              if (body.pago) p.pago = texto(body.pago, 20);
+            }
+            p.actualizado = ahora;
+            return p;
+          }),
+        ),
+      );
+      const mesa = deCuenta.find((p) => p.mesa)?.mesa;
+      if (mesa) {
+        const m = await store.get(`mesas/${mesa}`, { type: "json" });
+        if (m?.cuenta === cuenta) await store.delete(`mesas/${mesa}`);
       }
+      return json({ ahora, pedidos: cerrados.filter(Boolean) });
     }
     return json({ ahora, pedidos: deCuenta });
   }
 
   if (req.method === "PATCH" && id) {
-    const p = await store.get(`p/${id}`, { type: "json" });
-    if (!p) return json({ error: "No encontrado" }, 404);
     const body = await leerCuerpo(req);
     if (!body) return json({ error: "Cambio inválido" }, 400);
-    const ahora = Date.now();
-    if (ESTADOS.includes(body.estado)) p.estado = body.estado;
-    if (typeof body.pagado === "boolean") p.pagado = body.pagado;
-    if (typeof body.minutos === "number" && body.minutos >= 0 && body.minutos <= 240) {
-      p.listoEn = ahora + body.minutos * 60000;
-    }
-    if (typeof body.sumar === "number" && Math.abs(body.sumar) <= 120) {
-      p.listoEn = Math.max(ahora, p.listoEn || ahora) + body.sumar * 60000;
-    }
-    // Quitar un producto (por ejemplo, de una cuenta de mesa abierta)
-    if (Number.isInteger(body.quitarLinea) && p.lineas[body.quitarLinea]) {
-      p.lineas.splice(body.quitarLinea, 1);
-      if (!p.lineas.length) p.estado = "cancelado";
-      recalcular(p);
-    }
-    p.actualizado = ahora;
-    await store.setJSON(`p/${p.id}`, p);
-    return json({ ahora, pedido: p });
+    // Caja y cocina pueden tocar el mismo pedido a la vez: ningún cambio se pierde.
+    const p = await modificar(store, `p/${id}`, (p) => {
+      if (!p) return undefined;
+      const ahora = Date.now();
+      if (ESTADOS.includes(body.estado)) p.estado = body.estado;
+      if (typeof body.pagado === "boolean") p.pagado = body.pagado;
+      if (typeof body.minutos === "number" && body.minutos >= 0 && body.minutos <= 240) {
+        p.listoEn = ahora + body.minutos * 60000;
+      }
+      if (typeof body.sumar === "number" && Math.abs(body.sumar) <= 120) {
+        p.listoEn = Math.max(ahora, p.listoEn || ahora) + body.sumar * 60000;
+      }
+      // Quitar un producto (por ejemplo, de una cuenta de mesa abierta)
+      if (Number.isInteger(body.quitarLinea) && p.lineas[body.quitarLinea]) {
+        p.lineas.splice(body.quitarLinea, 1);
+        if (!p.lineas.length) p.estado = "cancelado";
+        recalcular(p);
+      }
+      p.actualizado = ahora;
+      return p;
+    });
+    if (!p) return json({ error: "No encontrado" }, 404);
+    return json({ ahora: Date.now(), pedido: p });
   }
 
   return json({ error: "Método no permitido" }, 405);
