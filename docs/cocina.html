@@ -8,23 +8,21 @@
   <meta name="robots" content="noindex, nofollow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="staff.css">
 </head>
 <body class="staff kitchen">
-  <header class="s-head">
-    <div>
-      <h1>Casa Rincón</h1>
-      <p>Cocina</p>
-    </div>
-    <div class="k-reloj" id="reloj"></div>
+  <header class="k-head">
+    <h1>Casa Rincón <small>Cocina</small></h1>
+    <div class="k-resumen" id="resumen"></div>
     <div class="s-status" id="estado"></div>
+    <div class="k-reloj" id="reloj"></div>
   </header>
 
   <section id="login" class="s-login" hidden>
-    <h2>Pantalla de cocina</h2>
-    <p class="hint">Escribe el PIN del restaurante.</p>
+    <h2>Monitor de cocina</h2>
+    <p class="hint">Se configura una sola vez: escribe el PIN del restaurante.<br>Después la pantalla funciona sola.</p>
     <form id="loginForm">
       <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="PIN">
       <button class="primary" type="submit"><span>Entrar</span></button>
@@ -33,9 +31,11 @@
   </section>
 
   <main id="app" class="k-main" hidden>
-    <nav class="s-filtros" id="filtros"></nav>
     <div id="tablero" class="k-tablero"></div>
   </main>
+
+  <footer class="k-pie" id="recientes"></footer>
+  <div class="k-tecla" id="tecla" hidden></div>
 
   <script src="data.js"></script>
   <script src="core.js"></script>

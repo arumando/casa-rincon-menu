@@ -12,7 +12,9 @@ Cuatro apps que trabajan juntas y se actualizan en vivo:
 
 ## Cómo funciona
 - **Tiempo de espera**: el encargado lo fija en Caja → “Tiempo y agotados” (para llevar y a domicilio) y aplica a todos los pedidos hasta que lo cambie. Si uno se atrasa, se le suman minutos desde Pedidos.
-- **Agotados**: en Caja se marca un ingrediente (chorizo, pan brioche…) o un producto; desaparece al momento en todas las apps.
+- **Se acabó un ingrediente**: en Caja → Ajustes. Si es un ingrediente normal (chorizo, piña…) el platillo se sigue vendiendo y se pregunta "¿sin ese ingrediente o con otro?". Si es base (pan, pasta, papas) el platillo se apaga.
+- **Mesas**: el ticket de una mesa queda como cuenta abierta (pestaña Mesas): se le agregan rondas, se quitan productos y se cobra al final.
+- **Cocina**: monitor solo para ver; los pedidos se quitan cuando la caja los marca o al pasar su hora. Opcional: teclado numérico, número + Enter = listo.
 - **Envío a domicilio**: zonas y costos en `ZONAS` dentro de `docs/data.js`.
 - **Pausar pedidos en línea**: en Caja → “Tiempo y agotados”.
 

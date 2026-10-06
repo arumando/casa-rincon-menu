@@ -30,6 +30,8 @@
   let seg = PEDIDOS ? store.get("cr-seguimiento", null) : null; // { id, codigo, tipo, msg, enviadoWA }
   let segData = null;
   let pollTimer = null;
+  // Caja: cuando se agregan cosas a la cuenta abierta de una mesa → { cuenta, mesa }
+  let destino = null;
 
   const saveCart = () => { store.set(K("cart"), cart); renderBars(); };
   const saveOrden = () => { if (PEDIDOS) store.set("cr-orden", { ...orden, ubic: undefined }); };
@@ -48,6 +50,12 @@
     return (i.picante ? '<span class="tag hot">Picante</span>' : "") + (i.sinCarne ? '<span class="tag veg">Sin carne</span>' : "");
   }
 
+  // "Hoy sin chorizo": el platillo se puede pedir, pero se preguntará cómo lo quieren.
+  function avisoFalta(i) {
+    const f = C.faltantesEn(C.textoItem(i));
+    return f.length ? `<span class="tag warn">Hoy sin ${esc(f.map((x) => x.nombre.toLowerCase()).join(", "))}</span>` : "";
+  }
+
   function card(i) {
     const ok = C.itemDisponible(i);
     const media = i.img ? `<img src="img/${i.img}" alt="" loading="lazy">` : `<div class="ph" aria-hidden="true">${i.icono || "🍕"}</div>`;
@@ -57,7 +65,7 @@
         <h3>${esc(i.nombre)}</h3>
         ${i.lema ? `<p class="lema">${esc(i.lema)}</p>` : ""}
         <p class="desc">${esc(i.desc)}</p>
-        <div class="card-foot">${ok ? tags(i) : '<span class="tag out">Agotado por hoy</span>'}<span class="price">${variosPrecios(i) ? "Desde " : ""}${money(C.precioDesde(i))}</span></div>
+        <div class="card-foot">${ok ? avisoFalta(i) + tags(i) : '<span class="tag out">Agotado por hoy</span>'}<span class="price">${variosPrecios(i) ? "Desde " : ""}${money(C.precioDesde(i))}</span></div>
       </div>
     </button>`;
   }
@@ -128,6 +136,51 @@
     el.classList.toggle("cerrado", !abierto());
   }
 
+  // ---------- Se acabó un ingrediente: ¿sin él o con otro? ----------
+  const ingNombre = (id) => (INGREDIENTES.find((i) => i.id === id)?.nombre || id).toLowerCase();
+
+  function faltantesDeSheet(s) {
+    const textos = s.kind === "pizza"
+      ? s.sabores.map((id) => C.textoItem(C.byId[id]))
+      : [C.textoItem(s.item), ...s.sabores.map(C.textoSabor)];
+    const vistos = new Map();
+    textos.forEach((t) => C.faltantesEn(t).forEach((i) => vistos.set(i.id, i)));
+    for (const k of Object.keys(s.cambios)) if (!vistos.has(k)) delete s.cambios[k];
+    return [...vistos.values()];
+  }
+  const pendientes = (s) => (MESA ? [] : faltantesDeSheet(s).filter((i) => !s.cambios[i.id]));
+
+  function cambiosHtml(s) {
+    const faltan = faltantesDeSheet(s);
+    if (!faltan.length) return "";
+    if (MESA) {
+      return `<div class="falta"><p>😕 Hoy se nos acabó <b>${esc(faltan.map((i) => i.nombre.toLowerCase()).join(", "))}</b>. Tu mesero te ofrece cambiarlo por otro ingrediente.</p></div>`;
+    }
+    return `<div class="falta">${faltan.map((ing) => {
+      const elegido = s.cambios[ing.id];
+      return `<div class="falta-item"><p>😕 Hoy se nos acabó <b>${esc(ing.nombre.toLowerCase())}</b>. ¿Cómo lo quieres?</p>
+        <div class="chips">
+          <button class="chip ${elegido === "sin" ? "on" : ""}" data-cambio="${ing.id}" data-por="sin">Sin ${esc(ing.nombre.toLowerCase())}</button>
+          ${C.reemplazos(ing.id).map((r) => `<button class="chip ${elegido === r.id ? "on" : ""}" data-cambio="${ing.id}" data-por="${r.id}">Con ${esc(r.nombre.toLowerCase())}</button>`).join("")}
+        </div></div>`;
+    }).join("")}<p class="hint">Cambiar un ingrediente no tiene costo extra.</p></div>`;
+  }
+
+  function textoCambios(s) {
+    return faltantesDeSheet(s).map((ing) => {
+      const c = s.cambios[ing.id];
+      return c === "sin" ? `SIN ${ing.nombre.toLowerCase()}` : `${ing.nombre.toLowerCase()} → ${ingNombre(c)}`;
+    });
+  }
+  const porQueFalta = (s) => {
+    const p = pendientes(s);
+    return p.length ? `¿Sin ${p[0].nombre.toLowerCase()} o con otro?` : null;
+  };
+  const sinHoy = (texto) => {
+    const f = C.faltantesEn(texto);
+    return f.length ? ` · sin ${f.map((x) => x.nombre.toLowerCase()).join(", ")} hoy` : "";
+  };
+
   // ---------- Pizzas ----------
   function pizzaSheet(s) {
     const i = s.item;
@@ -139,7 +192,7 @@
           <p>${l === "clasica" ? "Clásicas" : "Especialidades"}</p>
           <div class="chips">${C.PIZZAS.filter((p) => p.linea === l).map((p) => {
             const ok = C.pizzaDisponible(p);
-            return `<button class="chip ${ok ? "" : "out"}" data-add-sabor="${p.id}" ${s.sabores.includes(p.id) || !ok ? "disabled" : ""}>${esc(p.nombre)}${ok ? "" : " · agotada"}</button>`;
+            return `<button class="chip ${ok ? "" : "out"}" data-add-sabor="${p.id}" ${s.sabores.includes(p.id) || !ok ? "disabled" : ""}>${esc(p.nombre)}${ok ? sinHoy(C.textoItem(p)) : " · agotada"}</button>`;
           }).join("")}</div>`).join("")}
         </div>`
       : "";
@@ -163,6 +216,7 @@
         ${s.sabores.length < max ? `<button class="link" data-picker>${s.picker ? "Cerrar lista de sabores" : s.sabores.length === 1 ? "+ Mitad y mitad: agregar otro sabor" : "+ Agregar otro sabor"}</button>` : ""}
         ${picker}
         <p class="hint">Mitad y mitad sin costo. La Gigante acepta hasta 4 sabores (+${money(EXTRA_SABOR.clasica)} por sabor clásico extra, +${money(EXTRA_SABOR.especialidad)} por especialidad). Si combinas con una especialidad, se cobra precio de especialidad.</p>
+        ${cambiosHtml(s)}
 
         <h4>3. Extras</h4>
         <label class="check ${orillaOk ? "" : "off"}"><input type="checkbox" data-orilla ${s.orilla ? "checked" : ""} ${orillaOk ? "" : "disabled"}>
@@ -170,7 +224,7 @@
         <label class="field"><span>Indicaciones (opcional)</span>
           <textarea rows="2" data-notas placeholder="Ej. sin cebolla, bien doradita">${esc(s.notas)}</textarea></label>
       </div>
-      ${foot(s, C.precioPizza(s), true)}`;
+      ${foot(s, C.precioPizza(s), !pendientes(s).length, porQueFalta(s))}`;
   }
 
   // ---------- Otros productos ----------
@@ -200,8 +254,9 @@
         ${lista.length ? `<h4>${max > 1 ? `Sabores <small>hasta ${max}</small>` : "Sabor"}</h4>
           <div class="chips">${lista.map((n) => {
             const ok = C.saborDisponible(n);
-            return `<button class="chip ${s.sabores.includes(n) ? "on" : ""} ${ok ? "" : "out"}" data-sabor="${esc(n)}" ${ok ? "" : "disabled"}>${esc(n)}${ok ? "" : " · agotado"}</button>`;
+            return `<button class="chip ${s.sabores.includes(n) ? "on" : ""} ${ok ? "" : "out"}" data-sabor="${esc(n)}" ${ok ? "" : "disabled"}>${esc(n)}${ok ? sinHoy(C.textoSabor(n)) : " · agotado"}</button>`;
           }).join("")}</div>` : ""}
+        ${cambiosHtml(s)}
         ${i.extras ? `<h4>Extras</h4><div class="opts">${i.extras.map((e, ix) => {
           const ok = C.extraDisponible(e);
           return `<button class="opt row ${ix === s.extra ? "on" : ""}" data-extra="${ix}" ${ok ? "" : "disabled"}><b>${esc(e.nombre)}${ok ? "" : " · agotado"}</b><em>+${money(e.precio)}</em></button>`;
@@ -209,7 +264,7 @@
         <label class="field"><span>Indicaciones (opcional)</span>
           <textarea rows="2" data-notas placeholder="Ej. sin cebolla">${esc(s.notas)}</textarea></label>
       </div>
-      ${foot(s, precioProducto(s), !falta, falta ? "Elige un sabor" : null)}`;
+      ${foot(s, precioProducto(s), !falta && !pendientes(s).length, falta ? "Elige un sabor" : porQueFalta(s))}`;
   }
 
   function top() {
@@ -232,7 +287,7 @@
     let linea;
     if (s.kind === "pizza") {
       const t = TAMANOS[s.size];
-      const det = [C.describeSabores(s.sabores)];
+      const det = [C.describeSabores(s.sabores), ...textoCambios(s)];
       if (s.orilla) det.push("orilla rellena de Philadelphia");
       if (s.notas.trim()) det.push(`Nota: ${s.notas.trim()}`);
       linea = { nombre: `Pizza ${t.nombre} (${t.reb} reb.)`, detalle: det.join(" · "), precio: C.precioPizza(s), pizza: s.sabores.slice(), orilla: s.orilla };
@@ -240,6 +295,7 @@
       const v = C.variantes(s.item)[s.v];
       const det = [];
       if (s.sabores.length) det.push(s.sabores.join(" / "));
+      det.push(...textoCambios(s));
       if (s.extra >= 0) det.push(s.item.extras[s.extra].nombre.toLowerCase());
       if (s.notas.trim()) det.push(`Nota: ${s.notas.trim()}`);
       linea = {
@@ -260,7 +316,7 @@
     if (l.pizza) return l.pizza.some((id) => !C.pizzaDisponible(C.byId[id])) || (l.orilla && !C.orillaDisponible());
     const i = C.byId[l.item];
     if (!i) return false;
-    return !C.itemDisponible(i) || (l.sabores || []).some((n) => !C.saborDisponible(n)) || (l.extra && C.faltaEn(l.extra));
+    return !C.itemDisponible(i) || (l.sabores || []).some((n) => !C.saborDisponible(n)) || (l.extra && !C.extraDisponible({ nombre: l.extra }));
   }
 
   // ---------- Pedido / ticket ----------
@@ -331,7 +387,7 @@
     return `
       ${top()}
       <div class="sheet-body">
-        <h3>${CAJA ? "Ticket" : "Tu pedido"}</h3>
+        <h3>${destino ? `Agregar a Mesa ${esc(destino.mesa)}` : CAJA ? "Ticket" : "Tu pedido"}</h3>
         ${cart.map((l, ix) => `<div class="line ${lineaAgotada(l) ? "out" : ""}">
             <div class="line-main"><b>${esc(l.nombre)}</b>${l.detalle ? `<small>${esc(l.detalle)}</small>` : ""}
               <small>${lineaAgotada(l) ? "⚠️ Se agotó: quítalo del pedido" : `${money(l.precio)} c/u`}</small></div>
@@ -339,10 +395,12 @@
           </div>`).join("")}
         <button class="link" data-close>+ Agregar más cosas</button>
 
+        ${destino ? `<div class="eta"><span class="clock">🍽️</span><div><b>Se suma a la cuenta abierta de Mesa ${esc(destino.mesa)}</b>
+          <small>Lo nuevo va a cocina como otra ronda; se cobra todo junto al cerrar la mesa.</small></div></div>` : `
         <h4>${CAJA ? "¿Para dónde es?" : "¿Cómo lo quieres?"}</h4>
         <div class="seg">${Object.entries(TIPOS).map(([k, n]) => `<button class="${orden.tipo === k ? "on" : ""}" data-tipo="${k}">${n}</button>`).join("")}</div>
         ${contacto}
-        ${entrega}
+        ${entrega}`}
 
         <h4>Pago</h4>
         <div class="seg">${Object.entries(PAGOS).map(([k, n]) => `<button class="${orden.pago === k ? "on" : ""}" data-pago="${k}">${n}</button>`).join("")}</div>
@@ -416,7 +474,7 @@
       tipo: orden.tipo, mesa: orden.mesa, nombre: orden.nombre, tel: orden.tel, dir: orden.dir, ref: orden.ref, ubic: orden.ubic,
       zona: orden.tipo === "domicilio" ? { id: orden.zona, nombre: C.zonaPorId[orden.zona]?.nombre } : null,
       pago: orden.pago, pagaCon: Number(orden.pagaCon) || 0, notas: orden.notas,
-      subtotal: subtotal(), envio: envio(), total: total(),
+      subtotal: subtotal(), envio: envio(), total: total(), cuenta: destino?.cuenta || null,
       lineas: cart.map((l) => ({ qty: l.qty, nombre: l.nombre, detalle: l.detalle, precio: l.precio })),
     };
   }
@@ -445,18 +503,21 @@
 
     if (CAJA) {
       const ticket = { ...datos, id: reg.id, codigo: reg.codigo, creado: reg.ahora, cliente: { nombre: datos.nombre, tel: datos.tel, dir: datos.dir, ref: datos.ref } };
+      const sumado = datos.tipo === "mesa" && reg.cuenta !== reg.id;
       cart = [];
       orden = { ...ORDEN_VACIA, ubic: null };
+      destino = null;
+      renderDestino();
       saveCart();
-      sheet = { kind: "ticketListo", ticket };
+      sheet = { kind: "ticketListo", ticket, sumado };
       renderSheet(true);
-      document.dispatchEvent(new CustomEvent("ticket-enviado"));
+      document.dispatchEvent(new CustomEvent("ticket-enviado", { detail: { tipo: datos.tipo } }));
       return;
     }
 
     seg = { id: reg.id, codigo: reg.codigo, tipo: orden.tipo, msg: mensaje(reg.codigo), enviadoWA: false };
     store.set("cr-seguimiento", seg);
-    segData = { estado: "recibido", listoEn: reg.listoEn, actualizado: reg.ahora, ahora: reg.ahora };
+    segData = { estado: "preparando", listoEn: reg.listoEn, actualizado: reg.ahora, ahora: reg.ahora };
     cart = [];
     saveCart();
     sheet = { kind: "seguimiento" };
@@ -468,11 +529,12 @@
     const t = s.ticket;
     return `${top()}
       <div class="sheet-body">
-        <div class="done-hero"><div class="big">🧾</div><h3>Ticket #${esc(t.codigo)} enviado a cocina</h3>
-          <p class="hint">${esc(C.tipoLargo(t))} · Total ${money(t.total)}</p></div>
+        <div class="done-hero"><div class="big">👨‍🍳</div><h3>#${esc(t.codigo)} enviado a cocina</h3>
+          <p class="hint">${esc(C.tipoLargo(t))} · ${money(t.total)}${s.sumado ? " · se sumó a la cuenta abierta de la mesa" : ""}</p>
+          ${t.tipo === "mesa" ? '<p class="hint">La cuenta de la mesa sigue abierta en la pestaña “Mesas” para agregar más o cobrar.</p>' : ""}</div>
       </div>
       <div class="sheet-foot">
-        <button class="secondary" data-imprimir>🖨️ Imprimir</button>
+        <button class="secondary" data-imprimir>🖨️ ${t.tipo === "mesa" ? "Comanda" : "Ticket"}</button>
         <button class="primary" data-nuevo-ticket><span>Nuevo ticket</span><span>›</span></button>
       </div>`;
   }
@@ -650,8 +712,8 @@
     if (!item) return;
     if (!C.itemDisponible(item)) return C.aviso(`${item.nombre}: agotado por hoy`);
     openSheet(item.tipo === "pizza"
-      ? { kind: "pizza", item, size: 2, sabores: [item.id], orilla: false, notas: "", qty: 1, picker: false }
-      : { kind: "prod", item, v: Math.max(0, C.variantes(item).findIndex(C.varianteDisponible)), sabores: [], extra: -1, notas: "", qty: 1 });
+      ? { kind: "pizza", item, size: 2, sabores: [item.id], orilla: false, notas: "", qty: 1, picker: false, cambios: {} }
+      : { kind: "prod", item, v: Math.max(0, C.variantes(item).findIndex(C.varianteDisponible)), sabores: [], extra: -1, notas: "", qty: 1, cambios: {} });
   }
 
   // ---------- Eventos ----------
@@ -704,6 +766,11 @@
     if ("close" in d) return closeSheet();
     if ("luego" in d) { closeSheet(); return C.aviso("Cuando quieras, aquí estamos 🍕"); }
     if ("add" in d) return addFromSheet();
+    if ("cambio" in d && s.cambios) {
+      s.cambios[d.cambio] = s.cambios[d.cambio] === d.por ? undefined : d.por;
+      if (!s.cambios[d.cambio]) delete s.cambios[d.cambio];
+      return renderSheet();
+    }
     if ("qty" in d) { s.qty = Math.max(1, s.qty + Number(d.qty)); return renderSheet(); }
 
     if (s.kind === "pizza") {
@@ -814,6 +881,27 @@
     renderBars();
     const escribiendo = sheet && $("#sheet").contains(document.activeElement) && /INPUT|TEXTAREA/.test(document.activeElement.tagName);
     if (sheet && !escribiendo && sheet.kind !== "ticketListo") renderSheet();
+  });
+
+  // ---------- Caja: agregar a la cuenta de una mesa ----------
+  function renderDestino() {
+    const el = $("#destino");
+    if (!el) return;
+    el.hidden = !destino;
+    if (destino) el.innerHTML = `<span>➕ Agregando a la cuenta de <b>Mesa ${esc(destino.mesa)}</b></span><button data-cancelar-destino>Cancelar</button>`;
+  }
+  document.addEventListener("agregar-a-mesa", (e) => {
+    destino = e.detail;
+    orden.tipo = "mesa";
+    orden.mesa = String(destino.mesa);
+    renderDestino();
+    if (location.hash) location.hash = "";
+    else render();
+  });
+  $("#destino")?.addEventListener("click", (e) => {
+    if (!e.target.closest("[data-cancelar-destino]")) return;
+    destino = null;
+    renderDestino();
   });
 
   // ---------- Inicio ----------

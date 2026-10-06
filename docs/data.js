@@ -20,31 +20,34 @@ const ZONAS = [
   { id: "capulalpam", nombre: "Capulálpam", costo: 100 },
 ];
 
-// Ingredientes que se pueden marcar como agotados desde la caja.
-// Cada uno apaga los platillos y sabores cuyo texto contiene alguna de las palabras de "buscar".
+// Ingredientes que se pueden marcar como "se acabó" desde la caja.
+// Se buscan en el texto de cada platillo con las palabras de "buscar".
+// - Normal: el platillo sigue disponible y al pedirlo se pregunta "¿sin ___ o lo cambiamos por otro?".
+// - base: true → sin ese ingrediente no se puede hacer el platillo, así que se apaga.
+// - cambio: true → se puede ofrecer como reemplazo de otro ingrediente que se acabó.
 const INGREDIENTES = [
-  { id: "chorizo", nombre: "Chorizo", buscar: ["chorizo", "choriqueso"] },
-  { id: "pepperoni", nombre: "Pepperoni", buscar: ["pepperoni", "peppe"] },
-  { id: "jamon", nombre: "Jamón de pavo", buscar: ["jamon de pavo", "y jamon."] },
-  { id: "salchicha", nombre: "Salchicha de pavo", buscar: ["salchicha"] },
-  { id: "tocino", nombre: "Tocino", buscar: ["tocino"] },
+  { id: "chorizo", nombre: "Chorizo", buscar: ["chorizo", "choriqueso"], cambio: true },
+  { id: "pepperoni", nombre: "Pepperoni", buscar: ["pepperoni", "peppe"], cambio: true },
+  { id: "jamon", nombre: "Jamón de pavo", buscar: ["jamon de pavo", "y jamon."], cambio: true },
+  { id: "salchicha", nombre: "Salchicha de pavo", buscar: ["salchicha"], cambio: true },
+  { id: "tocino", nombre: "Tocino", buscar: ["tocino"], cambio: true },
   { id: "serrano", nombre: "Jamón serrano", buscar: ["serrano"] },
   { id: "pollo", nombre: "Pollo / pechuga", buscar: ["pollo", "pechuga"] },
   { id: "arrachera", nombre: "Arrachera", buscar: ["arrachera"] },
   { id: "tasajo", nombre: "Tasajo", buscar: ["tasajo"] },
   { id: "chapulines", nombre: "Chapulines", buscar: ["chapulin"] },
-  { id: "pina", nombre: "Piña", buscar: ["pina"] },
-  { id: "champinones", nombre: "Champiñones", buscar: ["champin", "champis"] },
-  { id: "jalapeno", nombre: "Chile jalapeño", buscar: ["jalapeno"] },
-  { id: "aceitunas", nombre: "Aceitunas", buscar: ["aceituna"] },
-  { id: "elotitos", nombre: "Elotitos", buscar: ["elotito"] },
+  { id: "pina", nombre: "Piña", buscar: ["pina"], cambio: true },
+  { id: "champinones", nombre: "Champiñones", buscar: ["champin", "champis"], cambio: true },
+  { id: "jalapeno", nombre: "Chile jalapeño", buscar: ["jalapeno"], cambio: true },
+  { id: "aceitunas", nombre: "Aceitunas", buscar: ["aceituna"], cambio: true },
+  { id: "elotitos", nombre: "Elotitos", buscar: ["elotito"], cambio: true },
   { id: "aguacate", nombre: "Aguacate", buscar: ["aguacate"] },
   { id: "queso-cabra", nombre: "Queso de cabra", buscar: ["queso de cabra"] },
   { id: "philadelphia", nombre: "Queso Philadelphia (orilla)", buscar: ["philadelphia"] },
-  { id: "brioche", nombre: "Pan brioche", buscar: ["brioche"] },
-  { id: "pan-oregano", nombre: "Pan / masa de orégano", buscar: ["oregano"] },
-  { id: "pasta", nombre: "Pasta", buscar: ["pasta de 130"] },
-  { id: "papas", nombre: "Papas", buscar: ["papas a la francesa"] },
+  { id: "brioche", nombre: "Pan brioche", buscar: ["brioche"], base: true },
+  { id: "pan-oregano", nombre: "Pan / masa de orégano", buscar: ["oregano"], base: true },
+  { id: "pasta", nombre: "Pasta", buscar: ["pasta de 130"], base: true },
+  { id: "papas", nombre: "Papas", buscar: ["papas a la francesa"], base: true },
 ];
 
 const TAMANOS = [

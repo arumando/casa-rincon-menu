@@ -77,15 +77,21 @@ const Core = (() => {
   const pizzaPorNombre = Object.fromEntries(PIZZAS.map((p) => [norm(p.nombre), p]));
   const ingById = Object.fromEntries(INGREDIENTES.map((i) => [i.id, i]));
 
-  // Ingrediente agotado que aparece en un texto (o null).
-  function faltaEn(texto) {
+  // ---------- Ingredientes que se acabaron ----------
+  const agotado = (id) => (estado.agotados?.ingredientes || []).includes(id);
+  // Ingredientes agotados que aparecen en un texto.
+  function agotadosEn(texto) {
     const t = norm(texto);
-    for (const id of estado.agotados?.ingredientes || []) {
-      const ing = ingById[id];
-      if (ing && ing.buscar.some((b) => t.includes(norm(b)))) return ing;
-    }
-    return null;
+    return (estado.agotados?.ingredientes || [])
+      .map((id) => ingById[id])
+      .filter((ing) => ing && ing.buscar.some((b) => t.includes(norm(b))));
   }
+  // Sin un ingrediente base (pan, pasta, papas) no se puede hacer el platillo.
+  const baseFaltaEn = (texto) => agotadosEn(texto).some((i) => i.base);
+  // Los demás se pueden quitar o cambiar: al pedir se le pregunta al cliente.
+  const faltantesEn = (texto) => agotadosEn(texto).filter((i) => !i.base && i.id !== "philadelphia");
+  // Ingredientes que sí hay y se pueden ofrecer como reemplazo.
+  const reemplazos = (excepto) => INGREDIENTES.filter((i) => i.cambio && !agotado(i.id) && i.id !== excepto);
 
   function variantes(i) {
     return i.variantes || [{ nombre: null, precio: i.precio, sabores: i.sabores || null, max: i.max || 1 }];
@@ -95,15 +101,20 @@ const Core = (() => {
     if (v.sabores === "clasica" || v.sabores === "especialidad") return PIZZAS.filter((p) => p.linea === v.sabores).map((p) => p.nombre);
     return v.sabores;
   }
+  // Texto con el que se buscan ingredientes: un sabor puede ser una pizza (calzones, rolls…) o un nombre suelto.
+  const textoSabor = (nombre) => {
+    const p = pizzaPorNombre[norm(nombre)];
+    return p ? `${p.nombre} ${p.desc}` : nombre;
+  };
+  const textoItem = (i) => `${i.nombre} ${i.desc}`;
 
   const productoApagado = (i) => (estado.agotados?.productos || []).includes(i.id);
   function pizzaDisponible(p) {
-    return !productoApagado(p) && !faltaEn(`${p.nombre} ${p.desc}`);
+    return !productoApagado(p) && !baseFaltaEn(textoItem(p));
   }
-  // Un sabor puede ser una pizza (calzones, rolls…) o un nombre suelto (emparedado, pastas).
   function saborDisponible(nombre) {
     const p = pizzaPorNombre[norm(nombre)];
-    return p ? pizzaDisponible(p) : !faltaEn(nombre);
+    return p ? pizzaDisponible(p) : !baseFaltaEn(nombre);
   }
   function varianteDisponible(v) {
     const lista = saboresDe(v);
@@ -112,11 +123,11 @@ const Core = (() => {
   function itemDisponible(i) {
     if (productoApagado(i)) return false;
     if (i.tipo === "pizza") return pizzaDisponible(i);
-    if (faltaEn(`${i.nombre} ${i.desc}`)) return false;
+    if (baseFaltaEn(textoItem(i))) return false;
     return variantes(i).some(varianteDisponible);
   }
-  const extraDisponible = (e) => !faltaEn(e.nombre);
-  const orillaDisponible = () => !(estado.agotados?.ingredientes || []).includes("philadelphia");
+  const extraDisponible = (e) => !agotadosEn(e.nombre).length;
+  const orillaDisponible = () => !agotado("philadelphia");
 
   // ---------- Precios de pizza ----------
   const maxSabores = (size) => (TAMANOS[size].id === "gigante" ? 4 : 2);
@@ -223,7 +234,7 @@ const Core = (() => {
     $, money, esc, norm, horaDe, store, api, setPin, get pin() { return pin; },
     get estado() { return estado; }, get offset() { return offset; }, set offset(v) { offset = v; },
     cargarEstado, cambiarEstado, vigilarEstado, alCambiarEstado,
-    byId, PIZZAS, variantes, saboresDe, faltaEn, itemDisponible, pizzaDisponible, saborDisponible, varianteDisponible,
+    byId, PIZZAS, variantes, saboresDe, agotadosEn, faltantesEn, reemplazos, textoSabor, textoItem, itemDisponible, pizzaDisponible, saborDisponible, varianteDisponible,
     extraDisponible, orillaDisponible, maxSabores, precioPizza, describeSabores, precioDesde,
     TIPO_TXT, PAGO_TXT, ESTADO_TXT, FINALES, zonaPorId, tipoLargo, imprimirTicket,
     prepararAudio, timbre, aviso,

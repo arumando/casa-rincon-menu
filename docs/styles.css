@@ -407,3 +407,25 @@ body.with-cart .wa-fab, body.with-track .wa-fab { bottom: calc(84px + env(safe-a
 body.with-cart.with-track .wa-fab { bottom: calc(148px + env(safe-area-inset-bottom)); }
 body.with-cart.with-track .cartbar { bottom: calc(78px + env(safe-area-inset-bottom)); }
 @media (max-width: 380px) { .wa-fab span { display: none; } .wa-fab { padding: 12px; } }
+
+/* ---------- Se acabó un ingrediente: preguntar ---------- */
+.tag.warn { color: var(--hot); border-style: dashed; }
+.falta {
+  margin-top: 16px; padding: 12px 14px; border-radius: 14px;
+  background: rgba(255,138,92,.08); border: 1px solid rgba(255,138,92,.55);
+}
+.falta p { margin: 0 0 10px; }
+.falta .hint { margin: 10px 0 0; }
+.falta-item + .falta-item { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+
+/* ---------- Pulido visual ---------- */
+.card { box-shadow: 0 4px 14px rgba(0,0,0,.2); border-radius: 16px; }
+.card img, .card .ph { width: 104px; height: 104px; border-radius: 12px; }
+.price { background: rgba(242,210,100,.12); color: var(--gold); padding: 3px 10px; border-radius: 999px; font-size: 14px; }
+.tile { border-radius: 18px; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+.tile-text b { font-size: 19px; }
+.promo { border-radius: 18px; }
+.sheet { box-shadow: 0 -12px 40px rgba(0,0,0,.5); }
+.opt.on, .chip.on { box-shadow: 0 0 0 3px rgba(242,210,100,.18); }
+.sticky { background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.hero h1 { letter-spacing: .01em; }

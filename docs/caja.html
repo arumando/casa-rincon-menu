@@ -35,12 +35,14 @@
 
   <div id="app" hidden>
     <nav class="s-tabs" id="tabs">
-      <button class="on" data-tab="ticket">🧾 Nuevo ticket</button>
-      <button data-tab="pedidos">📋 Pedidos <span class="n" id="nPedidos"></span></button>
-      <button data-tab="ajustes">⚙️ Tiempo y agotados</button>
+      <button class="on" data-tab="ticket"><span class="ico">🧾</span>Nuevo</button>
+      <button data-tab="mesas"><span class="ico">🍽️</span>Mesas <span class="n" id="nMesas"></span></button>
+      <button data-tab="pedidos"><span class="ico">🛵</span>Pedidos <span class="n" id="nPedidos"></span></button>
+      <button data-tab="ajustes"><span class="ico">⚙️</span>Ajustes</button>
     </nav>
 
     <section id="tab-ticket">
+      <div class="destino" id="destino" hidden></div>
       <div class="sticky" id="sticky">
         <div class="topbar" id="topbar" hidden></div>
         <div class="search">
@@ -49,6 +51,10 @@
         <nav class="cats" id="cats" aria-label="Categorías del menú" hidden></nav>
       </div>
       <main id="list"></main>
+    </section>
+
+    <section id="tab-mesas" class="s-wrap" hidden>
+      <div id="mesas" class="s-lista"></div>
     </section>
 
     <section id="tab-pedidos" class="s-wrap" hidden>
